@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.8">
+  <title>Iniciar Sesión</title>
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <div class="formulario">
+        <h1>Inicio de Sesión</h1>
+        <form action="login.php" method="POST">
+            <div class="username">
+                <input type="email" name="usuario" required>
+                <label>Email de Usuario</label>
+            </div>
+            <div class="username">
+                <input type="password" name="password" required>
+                <label>Contraseña</label>   
+            </div>
+            <div class="recordar">¿Olvido su contraseña?</div>
+            <input type="submit" value="Iniciar">
+            <div class="registrarse">Quiero hacer el <a href="registro.html">registro</a>
+            </div>
+        </form>    
+    </div>
+
+    <!-- Div donde se mostrará el mensaje -->
+    <div id="alerta-registro"></div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            // 1. Obtener los parámetros de la URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const mensaje = urlParams.get('mensaje');
+            const tipo = urlParams.get('tipo');
+
+            // 2. Si existe un mensaje en la URL, mostrarlo
+            if (mensaje) {
+                const contenedor = document.getElementById('alerta-registro');
+      
+                // Insertar el texto en la página
+                contenedor.textContent = mensaje;
+                contenedor.className = `alerta ${tipo}`; // Permite darle estilos CSS según la clase
+
+                // Optional: Limpiar la URL sin recargar la página para que el mensaje no reaparezca si el usuario refresca
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+</body>
+</html>

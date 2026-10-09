@@ -1,0 +1,303 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+    color: #333;
+}
+
+/* NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 80px;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.logo-icon {
+    font-size: 24px;
+    font-family: serif;
+}
+
+.nav-links a {
+    margin-left: 30px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+}
+
+/* HERO SECTION */
+.hero-container {
+    width: 100%;
+    min-height: 80vh; /* Ajusta la altura del banner a tu gusto */
+    
+    /* Configuración de la imagen de fondo */
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 100%), url("img/anillo.jpeg");
+    background-size: cover;      /* Escala la imagen para cubra todo el ancho y alto */
+    background-position: center; /* Centra la imagen */
+    background-repeat: no-repeat;
+    
+    /* Posicionamiento del contenido flotante sobre la imagen */
+    display: flex;
+    align-items: center;
+    padding: 0 80px; /* Margen a los lados para separar el texto del borde */
+    box-sizing: border-box;
+}
+
+.hero-text {
+    max-width: 450px; /* Limita el ancho para que el texto no cruce toda la pantalla */
+}
+
+.hero-text h1 {
+    font-size: 48px;
+    font-family: serif;
+    color: #1a2b4c;
+    margin-bottom: 30px;
+    line-height: 1.2;
+}
+
+.btn-catalogo {
+    display: inline-block;
+    text-decoration: none;
+    color: #1a2b4c;
+    font-size: 13px;
+    letter-spacing: 2px;
+    font-weight: bold;
+    border-bottom: 2px solid #1a2b4c; /* Subrayado opcional tipo botón */
+    padding-bottom: 4px;
+}
+
+/* CATALOGO */
+.container-catalogo {
+    padding: 20px 80px;
+}
+
+.search-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.search-box {
+    width: 50%;
+    background: #f5f5f5;
+    padding: 10px 20px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    outline: none;
+    margin-left: 10px;
+    width: 100%;
+}
+
+.breadcrumb {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.breadcrumb a{
+    text-decoration: none;
+    color: #666;
+}
+
+.main-content {
+    display: flex;
+    gap: 40px;
+}
+
+.sidebar-filtros {
+    width: 200px;
+}
+
+.sidebar-filtros h3 {
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.filtro-grupo {
+    margin-bottom: 25px;
+}
+
+.filtro-grupo h4 {
+    font-size: 12px;
+    color: #000;
+    margin-bottom: 10px;
+}
+
+.filtro-grupo ul {
+    list-style: none;
+}
+
+.filtro-grupo li a {
+    text-decoration: none;
+    color: #666;
+    font-size: 13px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* GRILLA DE PRODUCTOS */
+.grid-productos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    flex-grow: 1;
+}
+
+.card-producto {
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    background: #fff;
+}
+
+.card-img {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-img img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.card-body h3 {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.card-sub {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 10px;
+}
+
+.card-precio {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.btn-mas-info {
+    display: block;
+    border: 1px solid #9C1427;
+    color: #9C1427;
+    padding: 8px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 12px;
+    transition: 0.3s;
+}
+
+.btn-mas-info:hover {
+    background-color: #9C1427;
+    color: #fff;
+}
+
+/* DETALLE DEL PRODUCTO */
+.container-detalle {
+    padding: 20px 80px;
+}
+
+.detalle-grid {
+    display: flex;
+    gap: 50px;
+    margin-top: 30px;
+    align-items: center;
+}
+
+.detalle-imagen {
+    flex: 1;
+    background: #fafafa;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.detalle-imagen img {
+    max-width: 300px;
+}
+
+.detalle-info {
+    flex: 1;
+}
+
+.detalle-info h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.detalle-info .descripcion {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.especificaciones {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.box-spec {
+    border: 1px solid #eaeaea;
+    padding: 12px 20px;
+    border-radius: 8px;
+}
+
+.box-spec .label {
+    display: block;
+    font-size: 11px;
+    color: #888;
+}
+
+.precio-detalle {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.btn-whatsapp {
+    display: inline-block;
+    border: 1px solid #9C1427;
+    color: #9C1427;
+    padding: 12px 30px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.btn-whatsapp:hover {
+    background-color: #9C1427;
+    color: #fff;
+}
