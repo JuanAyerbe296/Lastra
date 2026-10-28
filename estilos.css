@@ -301,3 +301,125 @@ body {
     background-color: #9C1427;
     color: #fff;
 }
+
+
+/* CONTENEDOR */
+.paginador-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 30px 0;
+    padding: 10px 15px;
+    box-sizing: border-box;
+}
+
+/* LISTA */
+.paginador {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* ELEMENTOS */
+.paginador li {
+    margin: 0;
+    padding: 0;
+}
+
+/* ENLACES */
+.paginador li a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 14px;
+    box-sizing: border-box;
+
+    color: #334155;
+    background: #ffffff;
+    border: 1px solid #dbe3ef;
+    border-radius: 10px;
+
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+}
+
+/* EFECTO HOVER */
+.paginador li:not(.actual):not(.deshabilitado) a:hover {
+    color: #ffffff;
+    background: #2563eb;
+    border-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(37, 99, 235, 0.20);
+}
+
+/* PÁGINA ACTUAL */
+.paginador li.actual a {
+    color: #ffffff;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    cursor: default;
+}
+
+/* BOTONES DESHABILITADOS */
+.paginador li.deshabilitado a {
+    color: #a0aec0;
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ACCESIBILIDAD CON TECLADO */
+.paginador li a:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.4);
+    outline-offset: 3px;
+}
+
+/* RESPONSIVE PARA MÓVILES */
+@media (max-width: 576px) {
+    .paginador-container {
+        margin: 20px 0;
+        padding: 8px;
+    }
+
+    .paginador {
+        gap: 5px;
+    }
+
+    .paginador li a {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    .paginador .texto-paginacion {
+        display: none;
+    }
+}
+
+/* RESPETAR PREFERENCIAS DE MOVIMIENTO */
+@media (prefers-reduced-motion: reduce) {
+    .paginador li a {
+        transition: none;
+    }
+}

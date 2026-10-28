@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro de Articulos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <style type="text/css">
@@ -144,6 +145,7 @@
             <th scope="col" class="text-center">Tipo</th>
             <th scope="col" class="text-center">Stock</th>
             <th scope="col" class="text-center">Precio</th>
+            <th scope="col" class="text-center">Visible</th>
   				  <th scope="col" class="text-center" colspan="2">Acciones</th>
           </tr>
   		  </thead>
@@ -157,11 +159,38 @@
             <td class="text-center"><?php echo $col[4] ?></td>
             <td class="text-center"><?php echo $col[5] ?></td>
             <td class="text-center"><?php echo $col[6] ?></td>
-      		  <td>
-      		    <center>
-      		      <a data-bs-toggle="modal" data-bs-target="#exampleModalEditar?codigo=<?php echo $col[0] ?>" class="btn btn-primary">Editar</a>
-      		      <a href="eliminar.php?codigo=<?php echo $col[0] ?>" class="btn btn-danger" onclick="return eliminar()">Eliminar</a>
-      		    </center>
+            <td class="text-center"><?php echo $col[7] ?></td>
+            <td class="text-center">
+              <!-- Editar -->
+      		    <a data-bs-toggle="modal" 
+                data-bs-target="#exampleModalEditar?codigo=<?php echo $col[0] ?>" 
+                class="btn btn-primary btn-sm" 
+                title="Editar producto">
+                <i class="bi bi-pencil-square"></i>
+              </a>
+              <!-- Eliminar -->
+      		    <a href="eliminar.php?codigo=<?php echo $col[0] ?>" 
+                class="btn btn-danger btn-sm" 
+                onclick="return eliminar()"
+                title="Eliminar producto">
+                <i class="bi bi-trash"></i>
+              </a>
+              <!-- Ocultar o mostrar -->
+              <?php if ((int)$col[7] === 1) { ?>
+                <a href="ocultar.php?codigo=<?php echo $col[0]; ?>"
+                  class="btn btn-warning btn-sm"
+                  title="Ocultar producto"
+                  onclick="return confirm('¿Deseas ocultar este producto?');">
+                  <i class="bi bi-eye-slash"></i>
+                </a>
+              <?php } else { ?>
+                <a href="mostrar.php?codigo=<?php echo $col[0]; ?>"
+                  class="btn btn-success btn-sm"
+                  title="Mostrar producto"
+                  onclick="return confirm('¿Deseas mostrar este producto?');">
+                  <i class="bi bi-eye"></i>
+                </a>
+              <?php } ?>
             </td>
     		  </tr>
         

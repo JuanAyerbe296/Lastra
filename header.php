@@ -18,7 +18,7 @@
         <nav class="nav-links">
             <a href="inicio.php">Inicio</a>
             <a href="catalogo.php">Catálogo</a>
-            <a href="#">Nosotras</a>
-            <a href="#">Contacto</a>
+            <a href="nosotros.php">Nosotras</a>
+            <a href="contacto.php">Contacto</a>
         </nav>
     </header>
