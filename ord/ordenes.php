@@ -1,8 +1,35 @@
 <?php
+// Iniciar sesión
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Evitar que el navegador muestre información almacenada al cerrar sesión
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: 0");
+
+// Permitir únicamente Admin y Empleado
+if (
+    !isset($_SESSION['usuario']) ||
+    !isset($_SESSION['rol']) ||
+    !in_array($_SESSION['rol'], ['Admin', 'Empleado'], true)
+) {
+    header("Location: ../index.html");
+    exit();
+}
+
 include "conexion.php";
 
-// Consulta SQL para obtener los detalles de las órdenes de compra
-$sql = "SELECT 
+$cnx->set_charset("utf8");
+
+// Función para escapar los datos mostrados en HTML
+function e($valor) {
+    return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
+}
+
+// Consulta de órdenes de compra
+$sql = "SELECT
             pr.razon_social AS proveedor,
             oc.fecha_registro,
             doc.descripcion AS producto,
@@ -17,6 +44,11 @@ $sql = "SELECT
         ORDER BY oc.fecha_registro DESC";
 
 $resultado = $cnx->query($sql);
+
+if (!$resultado) {
+    error_log("Error al consultar órdenes de compra: " . $cnx->error);
+    die("No se pudo cargar el listado de órdenes de compra.");
+}
 ?>
 
 <!DOCTYPE html>
@@ -26,25 +58,42 @@ $resultado = $cnx->query($sql);
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Órdenes de Compra</title>
-    <!-- Estilos de Bootstrap 5 -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-light">
 
 <div class="container my-5">
+
     <h2 class="mb-4 text-center">Listado de Órdenes de Compra</h2>
 
     <nav class="navbar bg-body-tertiary" data-bs-theme="dark">
         <div class="container-fluid justify-content-center">
-          <form class="d-flex" role="search" method="POST">
-            <input name="buscador" placeholder="Buscar con JS" id="codigo" class="form-control me-2 light-table-filter" type="search" aria-label="Search" data-table="table_id">
-            <button name="buscador" class="btn btn-outline-light" type="submit">Buscar</button>
-          </form>
+            <form class="d-flex" role="search" method="POST">
+                <input
+                    name="buscador"
+                    placeholder="Buscar con JS"
+                    id="codigo"
+                    class="form-control me-2 light-table-filter"
+                    type="search"
+                    aria-label="Search"
+                    data-table="table_id"
+                >
+
+                <button name="buscador" class="btn btn-outline-light" type="submit">
+                    Buscar
+                </button>
+            </form>
         </div>
-    </nav><br>
+    </nav>
+
+    <br>
 
     <div class="table-responsive shadow-sm bg-white p-3 rounded">
+
         <table class="table table-striped table-hover align-middle table_id" id="tblDatos">
+
             <thead class="table-dark">
                 <tr>
                     <th>Proveedor</th>
@@ -57,34 +106,74 @@ $resultado = $cnx->query($sql);
                     <th class="text-end">Precio Total</th>
                 </tr>
             </thead>
+
             <tbody>
-                <?php if ($resultado && $resultado->num_rows > 0): ?>
+
+                <?php if ($resultado->num_rows > 0): ?>
+
                     <?php while ($row = $resultado->fetch_assoc()): ?>
+
                         <tr>
-                            <td><?php echo htmlspecialchars($row['proveedor']); ?></td>
-                            <td><?php echo date('d/m/Y', strtotime($row['fecha_registro'])); ?></td>
-                            <td><?php echo htmlspecialchars($row['producto']); ?></td>
-                            <td class="text-center"><?php echo $row['cantidad']; ?></td>
-                            <td class="text-end">S/ <?php echo number_format($row['precio_unitario'], 2); ?></td>
-                            <td class="text-end">S/ <?php echo number_format($row['subtotal'], 2); ?></td>
-                            <td class="text-end">S/ <?php echo number_format($row['igv'], 2); ?></td>
-                            <td class="text-end fw-bold text-success">S/ <?php echo number_format($row['precio_total'], 2); ?></td>
+                            <td><?php echo e($row['proveedor']); ?></td>
+
+                            <td>
+                                <?php
+                                $fecha = strtotime($row['fecha_registro']);
+                                echo $fecha ? date('d/m/Y', $fecha) : 'Fecha no válida';
+                                ?>
+                            </td>
+
+                            <td><?php echo e($row['producto']); ?></td>
+
+                            <td class="text-center">
+                                <?php echo (int)$row['cantidad']; ?>
+                            </td>
+
+                            <td class="text-end">
+                                S/ <?php echo number_format((float)$row['precio_unitario'], 2); ?>
+                            </td>
+
+                            <td class="text-end">
+                                S/ <?php echo number_format((float)$row['subtotal'], 2); ?>
+                            </td>
+
+                            <td class="text-end">
+                                S/ <?php echo number_format((float)$row['igv'], 2); ?>
+                            </td>
+
+                            <td class="text-end fw-bold text-success">
+                                S/ <?php echo number_format((float)$row['precio_total'], 2); ?>
+                            </td>
                         </tr>
+
                     <?php endwhile; ?>
+
                 <?php else: ?>
+
                     <tr>
-                        <td colspan="8" class="text-center text-muted">No hay órdenes de compra registradas.</td>
+                        <td colspan="8" class="text-center text-muted">
+                            No hay órdenes de compra registradas.
+                        </td>
                     </tr>
+
                 <?php endif; ?>
+
             </tbody>
+
         </table>
-    </div><br>
+
+    </div>
+
+    <br>
 
     <div id="paginador" class="pagination justify-content-center"></div>
+
 </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="js/page.js"></script>
-    <script type="text/javascript" src="js/buscador.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="text/javascript" src="js/page.js"></script>
+<script type="text/javascript" src="js/buscador.js"></script>
 
 </body>
 </html>

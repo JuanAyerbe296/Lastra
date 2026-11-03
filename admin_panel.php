@@ -1,3 +1,21 @@
+<?php
+session_start();
+
+// Evitar mostrar el panel desde la caché del navegador
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: 0");
+
+// Verificar que exista una sesión de administrador
+if (
+    !isset($_SESSION['usuario']) ||
+    !isset($_SESSION['rol']) ||
+    $_SESSION['rol'] !== 'Admin'
+) {
+    header("Location: index.html");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>

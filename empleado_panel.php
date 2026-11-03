@@ -1,3 +1,20 @@
+<?php
+session_start();
+
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: 0");
+
+// Verificar que exista una sesión de empleado
+if (
+    !isset($_SESSION['usuario']) ||
+    !isset($_SESSION['rol']) ||
+    $_SESSION['rol'] !== 'Empleado'
+) {
+    header("Location: index.html");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,9 +32,6 @@
       </div>
       <nav>
         <ul class="nav-links">
-          <li><a href="">Empleado</a></li>
-          <li><a href="">Proveedor</a></li>
-          <li><a href="">Articulo</a></li>
           <li><a href="ord/compra.php">Orden de Compra</a></li>
           <li><a href="pedido.php">Pedido</a></li>
           <li><a href="dashboard.php">Dashboard</a></li>

@@ -1,33 +1,108 @@
 <?php
+session_start();
+
+// Evitar mostrar el dashboard desde la caché
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: 0");
+
+// Permitir el acceso solamente a usuarios autenticados
+// con rol Administrador o Empleado
+if (
+    !isset($_SESSION['usuario']) ||
+    !isset($_SESSION['rol']) ||
+    !in_array($_SESSION['rol'], ['Admin', 'Empleado'], true)
+) {
+    header("Location: index.html");
+    exit();
+}
+
 include "conexion.php";
 
+mysqli_set_charset($cnx, "utf8");
 date_default_timezone_set('America/Lima');
+
+// Validar fechas
+function fechaValidaDashboard($fecha) {
+    $d = DateTime::createFromFormat('!Y-m-d', $fecha);
+    return $d && $d->format('Y-m-d') === $fecha;
+}
+
+// Ejecutar consultas preparadas
+function consultaPreparadaDashboard($cnx, $sql, $tipos, $parametros) {
+
+    $stmt = mysqli_prepare($cnx, $sql);
+
+    if (!$stmt) {
+        die("Error al preparar la consulta.");
+    }
+
+    if ($tipos !== '') {
+        $referencias = [$tipos];
+
+        foreach ($parametros as $i => &$parametro) {
+            $referencias[] = &$parametro;
+        }
+
+        call_user_func_array(
+            [$stmt, 'bind_param'],
+            $referencias
+        );
+
+        unset($parametro);
+    }
+
+    if (!mysqli_stmt_execute($stmt)) {
+        mysqli_stmt_close($stmt);
+        die("Error al ejecutar la consulta.");
+    }
+
+    $resultado = mysqli_stmt_get_result($stmt);
+    mysqli_stmt_close($stmt);
+
+    return $resultado;
+}
 
 // Filtros
 $buscar = trim($_GET['buscar'] ?? '');
 $desde  = $_GET['desde'] ?? '';
 $hasta  = $_GET['hasta'] ?? '';
 
-$buscarSQL = $cnx->real_escape_string($buscar);
-$desdeSQL  = $cnx->real_escape_string($desde);
-$hastaSQL  = $cnx->real_escape_string($hasta);
-
 $where = " WHERE 1=1 ";
+$parametros = [];
+$tipos = "";
 
+// Búsqueda de cliente, celular o producto
 if ($buscar !== '') {
     $where .= " AND (
-        pe.cliente_nombre LIKE '%$buscarSQL%'
-        OR pe.cliente_celular LIKE '%$buscarSQL%'
-        OR ar.nombre LIKE '%$buscarSQL%'
+        pe.cliente_nombre LIKE ?
+        OR pe.cliente_celular LIKE ?
+        OR ar.nombre LIKE ?
     ) ";
+
+    $busqueda = "%" . $buscar . "%";
+
+    $parametros[] = $busqueda;
+    $parametros[] = $busqueda;
+    $parametros[] = $busqueda;
+
+    $tipos .= "sss";
 }
 
-if ($desde !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $desde)) {
-    $where .= " AND pe.fecha_pedido >= '$desdeSQL 00:00:00' ";
+// Filtro desde
+if (fechaValidaDashboard($desde)) {
+    $where .= " AND pe.fecha_pedido >= ? ";
+
+    $parametros[] = $desde . " 00:00:00";
+    $tipos .= "s";
 }
 
-if ($hasta !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $hasta)) {
-    $where .= " AND pe.fecha_pedido <= '$hastaSQL 23:59:59' ";
+// Filtro hasta
+if (fechaValidaDashboard($hasta)) {
+    $where .= " AND pe.fecha_pedido <= ? ";
+
+    $parametros[] = $hasta . " 23:59:59";
+    $tipos .= "s";
 }
 
 // Pedidos filtrados
@@ -44,7 +119,12 @@ $sql = "SELECT
         $where
         ORDER BY pe.fecha_pedido DESC";
 
-$resultado = $cnx->query($sql);
+$resultado = consultaPreparadaDashboard(
+    $cnx,
+    $sql,
+    $tipos,
+    $parametros
+);
 
 // Indicadores
 $sqlStats = "SELECT
@@ -56,7 +136,15 @@ $sqlStats = "SELECT
              INNER JOIN articulo ar ON pe.id_producto = ar.codigo
              $where";
 
-$stats = $cnx->query($sqlStats)->fetch_assoc();
+$resStats = consultaPreparadaDashboard(
+    $cnx,
+    $sqlStats,
+    $tipos,
+    $parametros
+);
+
+$stats = mysqli_fetch_assoc($resStats);
+mysqli_free_result($resStats);
 
 // Ventas por mes (últimos 6 meses)
 $sqlMes = "SELECT
@@ -69,19 +157,25 @@ $sqlMes = "SELECT
            GROUP BY DATE_FORMAT(fecha_pedido, '%Y-%m')
            ORDER BY mes";
 
-$resMes = $cnx->query($sqlMes);
+$resMes = mysqli_query($cnx, $sqlMes);
+
+if (!$resMes) {
+    die("Error al consultar las ventas mensuales.");
+}
+
 $meses = [];
 $ventasMes = [];
 
-while ($r = $resMes->fetch_assoc()) {
+while ($r = mysqli_fetch_assoc($resMes)) {
     $meses[] = $r['mes'];
     $ventasMes[] = (float)$r['ventas'];
 }
 
 // Productos más vendidos
-$sqlTop = "SELECT ar.nombre,
-                  SUM(pe.cantidad) AS unidades,
-                  SUM(pe.total) AS ventas
+$sqlTop = "SELECT
+                ar.nombre,
+                SUM(pe.cantidad) AS unidades,
+                SUM(pe.total) AS ventas
            FROM pedidos pe
            INNER JOIN articulo ar ON pe.id_producto = ar.codigo
            $where
@@ -89,18 +183,28 @@ $sqlTop = "SELECT ar.nombre,
            ORDER BY unidades DESC
            LIMIT 5";
 
-$resTop = $cnx->query($sqlTop);
+$resTop = consultaPreparadaDashboard(
+    $cnx,
+    $sqlTop,
+    $tipos,
+    $parametros
+);
 
 $productos = [];
 $cantidades = [];
 
-while ($r = $resTop->fetch_assoc()) {
+while ($r = mysqli_fetch_assoc($resTop)) {
     $productos[] = $r['nombre'];
     $cantidades[] = (int)$r['unidades'];
 }
 
+// Funciones auxiliares
 function e($valor) {
-    return htmlspecialchars((string)$valor, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars(
+        (string)$valor,
+        ENT_QUOTES,
+        'UTF-8'
+    );
 }
 
 function soles($valor) {

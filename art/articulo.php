@@ -1,3 +1,21 @@
+<?php
+session_start();
+
+// Evitar mostrar información almacenada en caché
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
+header("Expires: 0");
+
+// Verificar sesión y permisos
+if (
+    !isset($_SESSION['usuario']) ||
+    !isset($_SESSION['rol']) ||
+    $_SESSION['rol'] !== 'Admin'
+) {
+    header("Location: ../index.html");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -48,17 +66,28 @@
   <?php 
     include "conexion.php";
 
-    // 1. Obtener el valor solo si viene en el POST; si no, dejarlo vacío
-    $id = isset($_POST['codigo']) ? $_POST['codigo'] : '';
+    $id = trim($_POST['buscador'] ?? '');
 
-    // 2. Consulta de articulo
-    $sql = "SELECT * FROM articulo WHERE codigo LIKE '%$id%'";
+    $sql = "SELECT * FROM articulo WHERE codigo LIKE ?";
 
-    // 3. Se añade $cnx dentro de mysqli_error()
-    $res = mysqli_query($cnx, $sql) or die(mysqli_error($cnx));
+    $stmt = mysqli_prepare($cnx, $sql);
 
-    // 4. Obtener la estructura de la tabla
-    $campos = mysqli_query($cnx, "DESCRIBE articulo") or die(mysqli_error($cnx));
+    $busqueda = "%" . $id . "%";
+
+    mysqli_stmt_bind_param($stmt, "s", $busqueda);
+    mysqli_stmt_execute($stmt);
+
+    $res = mysqli_stmt_get_result($stmt);
+
+    if (!$res) {
+      die("Error al consultar artículos.");
+    }
+
+    $campos = mysqli_query($cnx, "DESCRIBE articulo");
+
+    if (!$campos) {
+      die("Error al obtener la estructura de artículos.");
+    }
   ?>
 
   <script>
